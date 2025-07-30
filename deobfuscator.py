@@ -1,11 +1,17 @@
 from zxcvbn import zxcvbn
+from multiprocessing import Pool,cpu_count
 import base64
 import re
+import time
+
 
 ASCII_LEN = 127-33
 passwd = "1q2w3e4r"
 input_is_hex = False
-target_word = "kgfi"
+target_word = "G;"
+
+def get_cpu_num():
+    return cpu_count()-1
 
 def is_hex(s):
     return re.fullmatch(r'[0-9a-fA-F]+', s) is not None
@@ -35,7 +41,7 @@ def has_target_word(test_word):
 
 def get_result_of(test_password,where):
         result = zxcvbn(test_password)
-        print(f"{where} : {test_password} / {result['score']} ")
+        # print(f"{where} : {test_password} / {result['score']} ")
         return result['password'], result['score']
 
 
@@ -88,30 +94,41 @@ def deobf_with_XOR_one_key():
 
         if has_target_word(test_passwd):
             break
-        get_result_of(test_passwd,"XOR KEY_x")
+
+
+def calculate_XOR_two_bytes(key_pair):
+    i,j = key_pair
+    test_passwd = list(passwd) 
+
+    for c in range(len(test_passwd)):
+        key = i if c%2==0 else j
+        test_passwd[c] = chr(((ord(test_passwd[c])^ key)))
+
+    if check_out_of_range(test_passwd):
+        return
+
+    test_passwd = ''.join(test_passwd)
+
+    if has_target_word(test_passwd):
+        print("hit with key:", i, j)
+
+    sample_pw , score = get_result_of(test_passwd,"XOR 2Bytes_Key")   
+    result= [sample_pw,score,key_pair]    
+
+    return  result
 
 
 def deobf_with_XOR_two_bytes_keys():
-    count =0
-    for i in range(256):
+    keys = [[i, j] for i in range(256) for j in range(256)]
+    cpu_num = get_cpu_num()
+    result = []
 
-        for j in range(256):
-            test_passwd = list(passwd)  
-            for c in range(len(test_passwd)):
-                key = i if c%2==0 else j
-                test_passwd[c] = chr(((ord(test_passwd[c])^ key)))
+    with Pool(cpu_num) as pool:
+        for i in pool.map(calculate_XOR_two_bytes,keys):
 
-            if check_out_of_range(test_passwd):
-                continue
-
-            test_passwd = ''.join(test_passwd)
-
-            if has_target_word(test_passwd):
-                break
-
-            print(count,end=' ')
-            get_result_of(test_passwd,"XOR 2Bytes_Key")    
-            count+=1 
+            if i is not None:
+                result.append(i)
+    return result                    
 
 
 if input_is_hex:
@@ -121,4 +138,11 @@ if input_is_hex:
 # deobf_with_ROT()
 # print(decode_with_Base64())
 # deobf_with_XOR_one_key()
-deobf_with_XOR_two_bytes_keys()
+result = deobf_with_XOR_two_bytes_keys()
+for i in range(len(result)):
+    print(result[i])
+
+# start = time.time()
+# end = time.time()
+# print(f"Time spent of MAP: {end-start:.2f} sec")
+
