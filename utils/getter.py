@@ -22,4 +22,4 @@ def convert_to_bytes(passwd):
 def get_result_of(test_password,where):
         result = zxcvbn(test_password)
         # print(f"{where} : {test_password} / {result['score']} ")
-        return result['password'], result['score']
+        return result['score']
