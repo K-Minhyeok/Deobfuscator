@@ -11,7 +11,8 @@ def score_freq_character(passwd):
                     'm': 3,'n': 7,'o': 7,'p': 3,'q': 0,'r': 8,
                     's': 6,'t': 7,'u': 4,'v': 1,'w': 1,'x': 0,'y': 2,'z': 0}
     score = 0
-    for i in passwd:
+    low_passwd = passwd.lower()
+    for i in low_passwd:
         if i in ENGLISH_FREQ:
             score += ENGLISH_FREQ[i]
     
@@ -82,6 +83,7 @@ def score_strong_password(test_password):
 
 def get_total_score(passwd,target_word):
 
+    print(passwd, end='===')
     if passwd == "":
         return 0
     
@@ -93,22 +95,30 @@ def get_total_score(passwd,target_word):
 
     #20
     total+= score_freq_character(passwd)
+    print(score_freq_character(passwd),end=' ')
     
     #15
     total+= score_bigram(passwd)
-    
+    print(score_bigram(passwd),end=' ')
+
     #15
     total+= score_trigram(passwd)
+    print(score_trigram(passwd),end=' ')
 
 
     #entropy (15점 만점)
     total+= score_entropy(passwd)
+    print(score_entropy(passwd),end=' ')
 
 
     #문자 패턴 (20점 만점)
     total+= score_pattern(passwd)
+    print(score_pattern(passwd),end=' ')
 
     #강력한 비밀번호인지 (10점 만점  (10-강력함 점수))
-    total + score_strong_password(passwd)
+    total += score_strong_password(passwd)
 
+    print(score_strong_password(passwd),end=' ')
+
+    print(total)
     return total
