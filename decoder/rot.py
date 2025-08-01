@@ -1,5 +1,6 @@
-from utils.checker import *
-from utils.getter import *
+from deob_utils.checker import *
+from deob_utils.getter import *
+from scorer.score import *
 
 ASCII_LEN = 127-33
 
@@ -19,16 +20,15 @@ def deobf_with_ROT(passwd,target_word):
 
         test_passwd = ''.join(test_passwd)
 
-        if has_target_word(target_word,test_passwd):
-            is_found = True
-
-
-        score = get_result_of(test_passwd,"ROT")   
+        score = get_total_score(test_passwd,target_word) 
+        if score >100 : 
+            is_found = True  
         result= {
                 "password" : test_passwd,
                 "score" : score,
                 "key" : i,
-                "is_found" : is_found
+                "is_found" : is_found,
+                "decoder" : "ROT"
                 }
         total.append(result)        
 

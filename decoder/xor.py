@@ -1,6 +1,8 @@
-from utils.getter import *
+from deob_utils.getter import *
 from multiprocessing import Pool
 from functools import partial
+from scorer.score import *
+
 
    
 def deobf_with_XOR_one_key(passwd , target_word):
@@ -16,16 +18,17 @@ def deobf_with_XOR_one_key(passwd , target_word):
             continue
 
         test_passwd = ''.join(test_passwd)
-        if has_target_word(target_word,test_passwd):
-            is_found = True
         
-        score = get_result_of(test_passwd,"XOR 2Bytes_Key")   
+        score = get_total_score(test_passwd,target_word)   
+        if score >100 : 
+            is_found = True
 
         result= {
         "password" : test_passwd,
         "score" : score,
         "key_pair" : [i,j],
-        "is_found" : is_found
+        "is_found" : is_found,
+        "decoder" : "XOR_One_Key"
         }
         total.append(result)
 
@@ -62,15 +65,16 @@ def calculate_XOR_two_bytes(key_pair,passwd,target_word):
 
     test_passwd = ''.join(test_passwd)
 
-    if has_target_word(target_word,test_passwd):
-        is_founded = True
+    score = get_total_score(test_passwd,target_word)   
+    if score >100 : 
+        is_found = True
 
-    score = get_result_of(test_passwd,"XOR 2Bytes_Key")   
     result= {
         "password" : test_passwd,
         "score" : score,
         "key_pair" :key_pair,
-        "is_found" : is_founded
+        "is_found" : is_found,
+        "decoder" : "XOR_Two_Keys"
         }
     
     

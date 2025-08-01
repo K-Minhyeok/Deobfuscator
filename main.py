@@ -1,8 +1,8 @@
 from decoder.base_64 import *
 from decoder.rot import *
 from decoder.xor import *
-from utils.checker import *
-from utils.getter import *
+from deob_utils.checker import *
+from deob_utils.getter import *
 
 import time
 
@@ -17,6 +17,8 @@ if input_is_hex:
     print(passwd)
 
 result = deobf_with_ROT(passwd,target_word)
+result.sort(key=lambda x: x['score'])
+
 # for i in rot_result:
 #     print(i)
 
@@ -29,7 +31,5 @@ for i in result:
     # if i['is_found']:
         print(i)
 
-# start = time.time()
-# end = time.time()
-# print(f"Time spent of MAP: {end-start:.2f} sec")
+
 

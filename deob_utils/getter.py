@@ -1,6 +1,12 @@
 from multiprocessing import cpu_count
 from zxcvbn import zxcvbn
-from utils.checker import *
+from deob_utils.checker import *
+from scorer.score import *
+
+
+def get_result_of(test_password):
+        result = zxcvbn(test_password)
+        return result['score']    
 
 def get_cpu_num():
     return cpu_count()-1
@@ -19,7 +25,3 @@ def convert_to_bytes(passwd):
         return None
     
 
-def get_result_of(test_password,where):
-        result = zxcvbn(test_password)
-        # print(f"{where} : {test_password} / {result['score']} ")
-        return result['score']

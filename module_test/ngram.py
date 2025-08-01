@@ -23,7 +23,7 @@ def score_trigram(passwd):
     'nce', 'edt', 'tis', 'oft', 'sth', 'men']
 
     for i in range (len(passwd)-2):
-        if passwd[i:i+3].lower() in COMMON_TRIGRAMS:
+        if passwd[i:i+3] in COMMON_TRIGRAMS:
             print(passwd[i:i+3])
             score +=1
     

@@ -1,8 +1,9 @@
 from nltk.corpus import words
-from utils.checker import *
-from utils.getter import *
-
-
+from deob_utils.checker import *
+from deob_utils.getter import *
+from collections import Counter
+from zxcvbn import zxcvbn
+import math
 
 def score_freq_character(passwd):
     ENGLISH_FREQ = {'a': 8,'b': 2,'c': 5,'d': 3,'e': 11,'f': 2,
@@ -53,44 +54,61 @@ def score_trigram(passwd):
         return score
 
 def score_pattern(passwd):
-    return
+    return 0
 
 def score_entropy(passwd):
-    return
+    char_freq = Counter(passwd)
+    entropy =0
+    passwd_len = len(passwd)
+    
+    for f in char_freq.values():
+        prob = f/passwd_len
+        result = abs(math.log2(prob)*prob)
+        entropy+=result
 
+    if entropy < 4.0:
+        return 15
+    elif entropy < 6.0:
+        return 10
+    elif entropy < 11.9:
+        return 5
+    else:
+        return 0
+
+def score_strong_password(test_password):
+        result = zxcvbn(test_password)
+        return 10 - result['score']    
 
 
 def get_total_score(passwd,target_word):
-    total = 0
+
+    if passwd == "":
+        return 0
     
-    # target_word 존재 유무
-    if has_target_word(target_word,passwd) :
-        total +=100
+    total = 0
+
+    if target_word != "" :
+        if has_target_word(target_word,passwd) :
+            total +=100
+
+    #20
+    total+= score_freq_character(passwd)
+    
+    #15
+    total+= score_bigram(passwd)
+    
+    #15
+    total+= score_trigram(passwd)
+
+
+    #entropy (15점 만점)
+    total+= score_entropy(passwd)
+
 
     #문자 패턴 (20점 만점)
     total+= score_pattern(passwd)
 
-    #자주 등장하는 알파벳 (15점 만점) 
-    #Done
-    total+= score_freq_character(passwd)
-    
-    #자주 등장하는 bigram (15점 만점)
-    #Done
-
-    total+= score_bigram(passwd)
-
-    #자주 등장하는 trigram (15점 만점)
-    #Done
-    total+= score_trigram(passwd)
-
-
-    #entropy (10점 만점)
-    total+= score_entropy(passwd)
-
-
-    #강력한 비밀번호인지 (10점 만점)
-    result =get_result_of(passwd)
-    score = result['score']
-    total += score
+    #강력한 비밀번호인지 (10점 만점  (10-강력함 점수))
+    total + score_strong_password(passwd)
 
     return total
